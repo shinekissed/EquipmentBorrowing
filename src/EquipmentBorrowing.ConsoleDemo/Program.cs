@@ -3,7 +3,6 @@ using EquipmentBorrowing.Application.Services;
 using EquipmentBorrowing.Domain;
 using EquipmentBorrowing.Infrastructure.Repositories;
 
-// ---- Seed data (this is the composition root: the one place allowed to know about every layer) ----
 
 var students = new List<Student>
     {
@@ -22,10 +21,10 @@ IEquipmentRepository equipmentRepository = new InMemoryEquipmentRepository(equip
 IBorrowingRepository borrowingRepository = new InMemoryBorrowingRepository();
 
 var borrowService = new BorrowEquipmentService(studentRepository, equipmentRepository, borrowingRepository);
+var returnService = new ReturnEquipmentService(equipmentRepository, borrowingRepository);
 
 Console.WriteLine("=== Equipment Borrowing System — Demonstration ===\n");
 
-// ---- Case 1: Successful borrow ----
 Console.WriteLine("Case 1: Student 1 borrows equipment 100 (should succeed)");
 var result1 = await borrowService.ExecuteAsync(
     studentId: 1,
@@ -34,7 +33,6 @@ var result1 = await borrowService.ExecuteAsync(
 
 PrintBorrowResult(result1);
 
-// ---- Case 2: Failure — equipment already unavailable ----
 Console.WriteLine("\nCase 2: Student 1 tries to borrow equipment 101, already unavailable (should fail)");
 var result2 = await borrowService.ExecuteAsync(
     studentId: 1,
@@ -43,7 +41,6 @@ var result2 = await borrowService.ExecuteAsync(
 
 PrintBorrowResult(result2);
 
-// ---- Case 3: Failure — student not allowed to borrow ----
 Console.WriteLine("\nCase 3: Student 2 (not allowed) tries to borrow equipment 100 (should fail)");
 var result3 = await borrowService.ExecuteAsync(
     studentId: 2,
@@ -52,9 +49,30 @@ var result3 = await borrowService.ExecuteAsync(
 
 PrintBorrowResult(result3);
 
+Console.WriteLine("\nCase 4: Student 1 returns equipment 100 (should succeed)");
+var returnResult1 = await returnService.ExecuteAsync(
+    studentId: 1,
+    equipmentId: 100);
+
+PrintReturnResult(returnResult1);
+
+Console.WriteLine("\nCase 5: Student 1 tries to return equipment 100 again (should fail)");
+var returnResult2 = await returnService.ExecuteAsync(
+    studentId: 1,
+    equipmentId: 100);
+
+PrintReturnResult(returnResult2);
+
 static void PrintBorrowResult(BorrowResult result)
 {
     Console.WriteLine(result.Success
         ? $"  SUCCESS - Borrowing #{result.BorrowingId} created."
+        : $"  FAILED - {result.ErrorMessage}");
+}
+
+static void PrintReturnResult(ReturnResult result)
+{
+    Console.WriteLine(result.Success
+        ? "  SUCCESS - Equipment returned successfully."
         : $"  FAILED - {result.ErrorMessage}");
 }
