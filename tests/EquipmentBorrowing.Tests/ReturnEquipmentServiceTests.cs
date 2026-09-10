@@ -23,7 +23,6 @@ public class ReturnEquipmentServiceTests
     [Fact]
     public async Task ExecuteAsync_ActiveBorrowingExists_ReturnsSuccessAndMarksEquipmentAvailable()
     {
-        // Arrange: borrow first, so there's something valid to return.
         var students = new List<Student> { new(1, "Juan Dela Cruz", isAllowedToBorrow: true, maxActiveBorrowings: 2) };
         var equipment = new List<Equipment> { new(100, "Multimeter", isAvailable: true) };
         var (borrowService, returnService) = CreateServices(students, equipment);
@@ -32,17 +31,14 @@ public class ReturnEquipmentServiceTests
             studentId: 1, equipmentId: 100, expectedReturnDate: DateTime.UtcNow.AddDays(7));
         Assert.True(borrowResult.Success); // sanity check the setup worked
 
-        // Act
         var returnResult = await returnService.ExecuteAsync(studentId: 1, equipmentId: 100);
 
-        // Assert
         Assert.True(returnResult.Success);
     }
 
     [Fact]
     public async Task ExecuteAsync_NoActiveBorrowingExists_ReturnsFailure()
     {
-        // No borrow ever happened for this student/equipment pair.
         var students = new List<Student> { new(1, "Juan Dela Cruz", isAllowedToBorrow: true, maxActiveBorrowings: 2) };
         var equipment = new List<Equipment> { new(100, "Multimeter", isAvailable: true) };
         var (_, returnService) = CreateServices(students, equipment);
