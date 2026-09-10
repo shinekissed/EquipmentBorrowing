@@ -58,7 +58,7 @@ public class ReturnEquipmentServiceTests
 
         await borrowService.ExecuteAsync(studentId: 1, equipmentId: 100, expectedReturnDate: DateTime.UtcNow.AddDays(7));
         var firstReturn = await returnService.ExecuteAsync(studentId: 1, equipmentId: 100);
-        Assert.True(firstReturn.Success); // sanity check
+        Assert.True(firstReturn.Success);
 
         var secondReturn = await returnService.ExecuteAsync(studentId: 1, equipmentId: 100);
 
