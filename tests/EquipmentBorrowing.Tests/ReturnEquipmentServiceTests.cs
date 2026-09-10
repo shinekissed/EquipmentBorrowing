@@ -52,7 +52,6 @@ public class ReturnEquipmentServiceTests
     [Fact]
     public async Task ExecuteAsync_AlreadyReturned_ReturnsFailureOnSecondAttempt()
     {
-        // Borrow, then return once (should succeed) — then try returning again (should fail).
         var students = new List<Student> { new(1, "Juan Dela Cruz", isAllowedToBorrow: true, maxActiveBorrowings: 2) };
         var equipment = new List<Equipment> { new(100, "Multimeter", isAvailable: true) };
         var (borrowService, returnService) = CreateServices(students, equipment);
