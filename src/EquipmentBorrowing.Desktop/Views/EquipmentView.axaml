@@ -1,0 +1,11 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:EquipmentBorrowing.Desktop.ViewModels"
+             x:Class="EquipmentBorrowing.Desktop.Views.EquipmentView"
+             x:DataType="vm:EquipmentViewModel">
+    <StackPanel Margin="24" Spacing="16">
+        <TextBlock Text="{Binding Title}" FontSize="22" FontWeight="SemiBold" />
+        <TextBlock Text="Equipment list and borrowing form will be loaded here."
+                   Foreground="Gray" />
+    </StackPanel>
+</UserControl>

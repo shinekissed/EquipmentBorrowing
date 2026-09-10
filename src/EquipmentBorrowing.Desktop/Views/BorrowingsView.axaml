@@ -1,0 +1,11 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:EquipmentBorrowing.Desktop.ViewModels"
+             x:Class="EquipmentBorrowing.Desktop.Views.BorrowingsView"
+             x:DataType="vm:BorrowingsViewModel">
+    <StackPanel Margin="24" Spacing="16">
+        <TextBlock Text="{Binding Title}" FontSize="22" FontWeight="SemiBold" />
+        <TextBlock Text="Active borrowings list and return button will be loaded here."
+                   Foreground="Gray" />
+    </StackPanel>
+</UserControl>
