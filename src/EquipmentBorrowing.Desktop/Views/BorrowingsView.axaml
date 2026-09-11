@@ -95,7 +95,7 @@
 					</StackPanel>
 
 					<!-- Return Button -->
-					<Button Content="↩️  Return Equipment"
+					<Button Content="Return Equipment"
                             Command="{Binding ReturnEquipmentCommand}"
                             Background="#D97706"
                             Foreground="White"
