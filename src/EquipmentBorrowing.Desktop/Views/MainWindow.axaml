@@ -3,8 +3,8 @@
         xmlns:vm="using:EquipmentBorrowing.Desktop.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600"
-        Width="950" Height="620"
+        mc:Ignorable="d" d:DesignWidth="980" d:DesignHeight="640"
+        Width="980" Height="640"
         WindowStartupLocation="CenterScreen"
         x:Class="EquipmentBorrowing.Desktop.Views.MainWindow"
         x:DataType="vm:MainViewModel"
@@ -12,45 +12,61 @@
         Title="Campus Equipment Borrowing System">
 
 	<Grid RowDefinitions="Auto,*">
-		<!-- Top Application Header -->
-		<Border Grid.Row="0" Background="#1E293B" Padding="20,14">
-			<StackPanel Orientation="Horizontal" Spacing="10">
-				<TextBlock Text="🏫" FontSize="20" VerticalAlignment="Center"/>
-				<TextBlock Text="Campus Equipment Borrowing System"
-                           Foreground="White"
-                           FontSize="18"
-                           FontWeight="Bold"
-                           VerticalAlignment="Center" />
-			</StackPanel>
+		<!-- Top Application Header Bar -->
+		<Border Grid.Row="0" Background="#0F172A" Padding="24,14">
+			<Grid ColumnDefinitions="*,Auto">
+				<StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+					<Border Background="#1E293B" CornerRadius="6" Padding="8,4">
+						<TextBlock Text="🏫" FontSize="18"/>
+					</Border>
+					<StackPanel VerticalAlignment="Center">
+						<TextBlock Text="Campus Equipment Borrowing System"
+                                   Foreground="White"
+                                   FontSize="16"
+                                   FontWeight="Bold" />
+						<TextBlock Text="Laboratory Activity 2 • Desktop MVVM Interface"
+                                   Foreground="#94A3B8"
+                                   FontSize="11" />
+					</StackPanel>
+				</StackPanel>
+
+				<Border Grid.Column="1" Background="#1E293B" CornerRadius="12" Padding="12,4" VerticalAlignment="Center">
+					<TextBlock Text="● System Active" Foreground="#10B981" FontSize="11" FontWeight="SemiBold"/>
+				</Border>
+			</Grid>
 		</Border>
 
-		<!-- Main Body: Navigation Sidebar (Left) + Content View (Right) -->
-		<Grid Grid.Row="1" ColumnDefinitions="220,*">
-			<!-- Sidebar Navigation -->
-			<Border Grid.Column="0" Background="#F1F5F9" BorderBrush="#E2E8F0" BorderThickness="0,0,1,0" Padding="14">
-				<StackPanel Spacing="10">
-					<TextBlock Text="NAVIGATION" FontSize="11" FontWeight="Bold" Foreground="#64748B" Margin="6,4,0,6"/>
+		<!-- Main Workspace: Sidebar (Left) + Content (Right) -->
+		<Grid Grid.Row="1" ColumnDefinitions="240,*">
+			<!-- Navigation Sidebar -->
+			<Border Grid.Column="0" Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="0,0,1,0" Padding="16">
+				<StackPanel Spacing="6">
+					<TextBlock Text="NAVIGATION" Classes="sectionTitle" Margin="6,4,0,8"/>
 
-					<Button Content="📦  Equipment"
-                            Command="{Binding ShowEquipmentCommand}"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Left"
-                            Padding="12,10"
-                            CornerRadius="6" />
+					<Button Content="📦   Equipment Catalog"
+                            Classes="navBtn"
+                            Command="{Binding ShowEquipmentCommand}" />
 
-					<Button Content="📋  Active Borrowings"
-                            Command="{Binding ShowBorrowingsCommand}"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Left"
-                            Padding="12,10"
-                            CornerRadius="6" />
+					<Button Content="📋   Active Borrowings"
+                            Classes="navBtn"
+                            Command="{Binding ShowBorrowingsCommand}" />
+
+					<Separator Background="#E2E8F0" Margin="0,16"/>
+
+					<TextBlock Text="SYSTEM INFO" Classes="sectionTitle" Margin="6,0,0,8"/>
+					<Border Background="#F1F5F9" CornerRadius="6" Padding="10">
+						<StackPanel Spacing="4">
+							<TextBlock Text="State: In-Memory Singleton" FontSize="11" Foreground="#475569" FontWeight="Medium"/>
+							<TextBlock Text="Pattern: MVVM + DI" FontSize="11" Foreground="#475569" FontWeight="Medium"/>
+						</StackPanel>
+					</Border>
 				</StackPanel>
 			</Border>
 
-			<!-- Dynamic View Area -->
+			<!-- Active View Content Area -->
 			<TransitioningContentControl Grid.Column="1"
                                          Content="{Binding CurrentView}"
-                                         Margin="12" />
+                                         Background="#F1F5F9" />
 		</Grid>
 	</Grid>
 
