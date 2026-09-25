@@ -9,6 +9,12 @@ public class EquipmentBorrowingDbContext : DbContext
     public DbSet<Equipment> Equipment => Set<Equipment>();
     public DbSet<Borrowing> Borrowings => Set<Borrowing>();
 
+    // 1. Parameterless constructor for EF Core design-time migrations
+    public EquipmentBorrowingDbContext()
+    {
+    }
+
+    // 2. Constructor for Dependency Injection at runtime
     public EquipmentBorrowingDbContext(DbContextOptions<EquipmentBorrowingDbContext> options)
         : base(options)
     {
@@ -18,5 +24,13 @@ public class EquipmentBorrowingDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(EquipmentBorrowingDbContext).Assembly);
+    }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        if (!optionsBuilder.IsConfigured)
+        {
+            optionsBuilder.UseSqlite("Data Source=equipment_borrowing.db");
+        }
     }
 }
