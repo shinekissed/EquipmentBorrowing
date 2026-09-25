@@ -1,4 +1,4 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:EquipmentBorrowing.Desktop.ViewModels"
              xmlns:domain="using:EquipmentBorrowing.Domain"
@@ -94,7 +94,10 @@
                                       HorizontalAlignment="Stretch">
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate x:DataType="domain:Student">
-                                        <TextBlock Text="{Binding Name, StringFormat='{}#{0} — {0}'}" />
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                            <TextBlock Text="{Binding Id, StringFormat='#{0}'}" FontWeight="Bold" Foreground="#64748B"/>
+                                            <TextBlock Text="{Binding Name}"/>
+                                        </StackPanel>
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
@@ -103,7 +106,9 @@
                         <!-- Expected Return Date -->
                         <StackPanel Spacing="6">
                             <TextBlock Text="Expected Return Date:" FontSize="13" FontWeight="SemiBold"/>
-                            <DatePicker SelectedDate="{Binding ExpectedReturnDate}" HorizontalAlignment="Stretch" />
+                            <CalendarDatePicker SelectedDate="{Binding ExpectedReturnDate}" 
+                                                HorizontalAlignment="Stretch" 
+                                                Watermark="Select return date" />
                         </StackPanel>
 
                         <!-- Submit Button -->

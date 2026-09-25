@@ -1,21 +1,19 @@
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using EquipmentBorrowing.Application.Services;
 using EquipmentBorrowing.Domain;
 using EquipmentBorrowing.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Threading.Tasks;
 
 namespace EquipmentBorrowing.Desktop.ViewModels;
 
 public partial class EquipmentViewModel : ViewModelBase
 {
     private readonly BorrowEquipmentService _borrowService;
-    private readonly List<Equipment> _sharedEquipment;
 
     public ObservableCollection<Equipment> EquipmentList { get; } = new();
     public ObservableCollection<Student> Students { get; } = new();
@@ -27,7 +25,7 @@ public partial class EquipmentViewModel : ViewModelBase
     private Student? _selectedStudent;
 
     [ObservableProperty]
-    private DateTimeOffset? _expectedReturnDate = DateTimeOffset.Now.AddDays(7);
+    private DateTime? _expectedReturnDate = DateTime.Today.AddDays(7);
 
     [ObservableProperty]
     private string? _feedbackMessage;
@@ -41,27 +39,14 @@ public partial class EquipmentViewModel : ViewModelBase
     public Action? OnBorrowSucceeded { get; set; }
 
     // Fallback constructor
-    public EquipmentViewModel()
+    public EquipmentViewModel() : this(null!)
     {
-        _borrowService = null!;
-        _sharedEquipment = new();
     }
 
-    // Constructor Injection (Part H)
-    public EquipmentViewModel(
-        BorrowEquipmentService borrowService,
-        List<Equipment> sharedEquipment,
-        List<Student> sharedStudents)
+    // DI Constructor
+    public EquipmentViewModel(BorrowEquipmentService borrowService)
     {
         _borrowService = borrowService;
-        _sharedEquipment = sharedEquipment;
-
-        foreach (var s in sharedStudents)
-            Students.Add(s);
-
-        if (Students.Count > 0)
-            SelectedStudent = Students[0];
-
         Refresh();
     }
 
@@ -72,23 +57,24 @@ public partial class EquipmentViewModel : ViewModelBase
 
         using var db = new EquipmentBorrowingDbContext();
 
-        // LINQ Query 1 (Part M): Retrieve equipment from SQLite without tracking for fast display
+        // LINQ Query 1 (Part M): Retrieve equipment from SQLite without tracking
         var equipmentFromDb = db.Equipment.AsNoTracking().ToList();
         foreach (var item in equipmentFromDb)
         {
             EquipmentList.Add(item);
         }
 
+        // Query students from SQLite
         var studentsFromDb = db.Students.AsNoTracking().ToList();
         foreach (var s in studentsFromDb)
         {
             Students.Add(s);
         }
 
-        if (EquipmentList.Count > 0 && SelectedEquipment is null)
+        if (EquipmentList.Count > 0 && (SelectedEquipment is null || !EquipmentList.Any(e => e.Id == SelectedEquipment.Id)))
             SelectedEquipment = EquipmentList[0];
 
-        if (Students.Count > 0 && SelectedStudent is null)
+        if (Students.Count > 0 && (SelectedStudent is null || !Students.Any(s => s.Id == SelectedStudent.Id)))
             SelectedStudent = Students[0];
     }
 
@@ -116,7 +102,7 @@ public partial class EquipmentViewModel : ViewModelBase
         var result = await _borrowService.ExecuteAsync(
             studentId: SelectedStudent.Id,
             equipmentId: SelectedEquipment.Id,
-            expectedReturnDate: ExpectedReturnDate.Value.DateTime);
+            expectedReturnDate: ExpectedReturnDate.Value);
 
         if (result.Success)
         {

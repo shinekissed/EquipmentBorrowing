@@ -1,6 +1,4 @@
 using System;
-using System.IO;
-using System.Linq;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
@@ -30,6 +28,13 @@ public partial class App : Avalonia.Application
         ConfigureServices(serviceCollection);
         Services = serviceCollection.BuildServiceProvider();
 
+        // Automatically ensure SQLite database & tables exist on startup
+        using (var scope = Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<EquipmentBorrowingDbContext>();
+            db.Database.Migrate();
+        }
+
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.MainWindow = new MainWindow
@@ -44,16 +49,15 @@ public partial class App : Avalonia.Application
     private static void ConfigureServices(IServiceCollection services)
     {
         // 1. Configure SQLite Database Connection
-        var dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "equipment_borrowing.db");
         services.AddDbContext<EquipmentBorrowingDbContext>(options =>
-            options.UseSqlite($"Data Source={dbPath}"), ServiceLifetime.Transient);
+            options.UseSqlite("Data Source=equipment_borrowing.db"), ServiceLifetime.Transient);
 
         // 2. Register Database-Backed Repositories (Part J)
         services.AddTransient<IStudentRepository, EfStudentRepository>();
         services.AddTransient<IEquipmentRepository, EfEquipmentRepository>();
         services.AddTransient<IBorrowingRepository, EfBorrowingRepository>();
 
-        // 3. Register Application Services (Part I - depends only on repository abstractions)
+        // 3. Register Application Services
         services.AddTransient<BorrowEquipmentService>();
         services.AddTransient<ReturnEquipmentService>();
 

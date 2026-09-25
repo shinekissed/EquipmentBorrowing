@@ -1,3 +1,7 @@
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using EquipmentBorrowing.Application.Interfaces;
@@ -5,11 +9,6 @@ using EquipmentBorrowing.Application.Services;
 using EquipmentBorrowing.Domain;
 using EquipmentBorrowing.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Threading.Tasks;
 
 namespace EquipmentBorrowing.Desktop.ViewModels;
 
@@ -17,8 +16,6 @@ public partial class BorrowingsViewModel : ViewModelBase
 {
     private readonly ReturnEquipmentService _returnService;
     private readonly IBorrowingRepository _borrowingRepository;
-    private readonly List<Equipment> _sharedEquipment;
-    private readonly List<Student> _sharedStudents;
 
     public ObservableCollection<BorrowingItemDisplay> ActiveBorrowings { get; } = new();
 
@@ -37,26 +34,17 @@ public partial class BorrowingsViewModel : ViewModelBase
     public Action? OnReturnSucceeded { get; set; }
 
     // Fallback constructor
-    public BorrowingsViewModel()
+    public BorrowingsViewModel() : this(null!, null!)
     {
-        _returnService = null!;
-        _borrowingRepository = null!;
-        _sharedEquipment = new();
-        _sharedStudents = new();
     }
 
-    // Constructor Injection (Part H)
+    // DI Constructor
     public BorrowingsViewModel(
         ReturnEquipmentService returnService,
-        IBorrowingRepository borrowingRepository,
-        List<Equipment> sharedEquipment,
-        List<Student> sharedStudents)
+        IBorrowingRepository borrowingRepository)
     {
         _returnService = returnService;
         _borrowingRepository = borrowingRepository;
-        _sharedEquipment = sharedEquipment;
-        _sharedStudents = sharedStudents;
-
         Refresh();
     }
 

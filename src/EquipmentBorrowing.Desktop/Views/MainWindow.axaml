@@ -1,4 +1,4 @@
-<Window xmlns="https://github.com/avaloniaui"
+﻿<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:EquipmentBorrowing.Desktop.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -24,14 +24,14 @@
                                    Foreground="White"
                                    FontSize="16"
                                    FontWeight="Bold" />
-						<TextBlock Text="Laboratory Activity 2 • Desktop MVVM Interface"
+						<TextBlock Text="Laboratory Activity 2 â€¢ Desktop MVVM Interface"
                                    Foreground="#94A3B8"
                                    FontSize="11" />
 					</StackPanel>
 				</StackPanel>
 
 				<Border Grid.Column="1" Background="#1E293B" CornerRadius="12" Padding="12,4" VerticalAlignment="Center">
-					<TextBlock Text="● System Active" Foreground="#10B981" FontSize="11" FontWeight="SemiBold"/>
+					<TextBlock Text="â— System Active" Foreground="#10B981" FontSize="11" FontWeight="SemiBold"/>
 				</Border>
 			</Grid>
 		</Border>
@@ -56,8 +56,8 @@
 					<TextBlock Text="SYSTEM INFO" Classes="sectionTitle" Margin="6,0,0,8"/>
 					<Border Background="#F1F5F9" CornerRadius="6" Padding="10">
 						<StackPanel Spacing="4">
-							<TextBlock Text="State: In-Memory Singleton" FontSize="11" Foreground="#475569" FontWeight="Medium"/>
-							<TextBlock Text="Pattern: MVVM + DI" FontSize="11" Foreground="#475569" FontWeight="Medium"/>
+							<TextBlock Text="State: SQLite (Persistent)" FontSize="11" Foreground="#475569" FontWeight="Medium"/>
+							<TextBlock Text="Pattern: MVVM + EF Core" FontSize="11" Foreground="#475569" FontWeight="Medium"/>
 						</StackPanel>
 					</Border>
 				</StackPanel>
