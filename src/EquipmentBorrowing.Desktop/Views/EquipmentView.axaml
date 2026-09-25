@@ -108,7 +108,7 @@
                             <TextBlock Text="Expected Return Date:" FontSize="13" FontWeight="SemiBold"/>
                             <CalendarDatePicker SelectedDate="{Binding ExpectedReturnDate}" 
                                                 HorizontalAlignment="Stretch" 
-                                                Watermark="Select return date" />
+                                                 />
                         </StackPanel>
 
                         <!-- Submit Button -->
