@@ -1,11 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using EquipmentBorrowing.Application.Services;
 using EquipmentBorrowing.Domain;
+using EquipmentBorrowing.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 
 namespace EquipmentBorrowing.Desktop.ViewModels;
 
@@ -65,13 +68,28 @@ public partial class EquipmentViewModel : ViewModelBase
     public void Refresh()
     {
         EquipmentList.Clear();
-        foreach (var item in _sharedEquipment)
+        Students.Clear();
+
+        using var db = new EquipmentBorrowingDbContext();
+
+        // LINQ Query 1 (Part M): Retrieve equipment from SQLite without tracking for fast display
+        var equipmentFromDb = db.Equipment.AsNoTracking().ToList();
+        foreach (var item in equipmentFromDb)
         {
             EquipmentList.Add(item);
         }
 
+        var studentsFromDb = db.Students.AsNoTracking().ToList();
+        foreach (var s in studentsFromDb)
+        {
+            Students.Add(s);
+        }
+
         if (EquipmentList.Count > 0 && SelectedEquipment is null)
             SelectedEquipment = EquipmentList[0];
+
+        if (Students.Count > 0 && SelectedStudent is null)
+            SelectedStudent = Students[0];
     }
 
     [RelayCommand]

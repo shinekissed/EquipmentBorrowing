@@ -1,12 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using EquipmentBorrowing.Application.Interfaces;
 using EquipmentBorrowing.Application.Services;
 using EquipmentBorrowing.Domain;
+using EquipmentBorrowing.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 
 namespace EquipmentBorrowing.Desktop.ViewModels;
 
@@ -61,21 +64,26 @@ public partial class BorrowingsViewModel : ViewModelBase
     {
         ActiveBorrowings.Clear();
 
-        // Query active borrowings and format for display
-        foreach (var eq in _sharedEquipment)
+        using var db = new EquipmentBorrowingDbContext();
+
+        // LINQ Query 2 (Part M): Join active borrowings with Student and Equipment from SQLite
+        var activeList = (from b in db.Borrowings.AsNoTracking()
+                          join s in db.Students.AsNoTracking() on b.StudentId equals s.Id
+                          join e in db.Equipment.AsNoTracking() on b.EquipmentId equals e.Id
+                          where b.Status == BorrowingStatus.Active
+                          select new BorrowingItemDisplay(
+                              b.Id,
+                              s.Name,
+                              s.Id,
+                              e.Name,
+                              e.Id,
+                              b.DateBorrowed,
+                              b.ExpectedReturnDate
+                          )).ToList();
+
+        foreach (var item in activeList)
         {
-            if (!eq.IsAvailable)
-            {
-                ActiveBorrowings.Add(new BorrowingItemDisplay(
-                    id: eq.Id,
-                    studentName: "Juan Dela Cruz",
-                    studentId: 1,
-                    equipmentName: eq.Name,
-                    equipmentId: eq.Id,
-                    dateBorrowed: DateTime.Now.AddDays(-2),
-                    dueDate: DateTime.Now.AddDays(5)
-                ));
-            }
+            ActiveBorrowings.Add(item);
         }
 
         if (ActiveBorrowings.Count > 0)
