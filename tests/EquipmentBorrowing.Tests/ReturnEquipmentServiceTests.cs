@@ -23,8 +23,8 @@ public class ReturnEquipmentServiceTests
     [Fact]
     public async Task ExecuteAsync_ActiveBorrowingExists_ReturnsSuccessAndMarksEquipmentAvailable()
     {
-        var students = new List<Student> { new(1, "Juan Dela Cruz", isAllowedToBorrow: true, maxActiveBorrowings: 2) };
-        var equipment = new List<Equipment> { new(100, "Multimeter", isAvailable: true) };
+        var students = new List<Student> { new(1, "2026-001", "Juan Dela Cruz", isEligible: true) };
+        var equipment = new List<Equipment> { new(100, "EQ-100", "Multimeter", isAvailable: true) };
         var (borrowService, returnService) = CreateServices(students, equipment);
 
         var borrowResult = await borrowService.ExecuteAsync(
@@ -39,8 +39,8 @@ public class ReturnEquipmentServiceTests
     [Fact]
     public async Task ExecuteAsync_NoActiveBorrowingExists_ReturnsFailure()
     {
-        var students = new List<Student> { new(1, "Juan Dela Cruz", isAllowedToBorrow: true, maxActiveBorrowings: 2) };
-        var equipment = new List<Equipment> { new(100, "Multimeter", isAvailable: true) };
+        var students = new List<Student> { new(1, "2026-001", "Juan Dela Cruz", isEligible: true) };
+        var equipment = new List<Equipment> { new(100, "EQ-100", "Multimeter", isAvailable: true) };
         var (_, returnService) = CreateServices(students, equipment);
 
         var result = await returnService.ExecuteAsync(studentId: 1, equipmentId: 100);
@@ -52,8 +52,8 @@ public class ReturnEquipmentServiceTests
     [Fact]
     public async Task ExecuteAsync_AlreadyReturned_ReturnsFailureOnSecondAttempt()
     {
-        var students = new List<Student> { new(1, "Juan Dela Cruz", isAllowedToBorrow: true, maxActiveBorrowings: 2) };
-        var equipment = new List<Equipment> { new(100, "Multimeter", isAvailable: true) };
+        var students = new List<Student> { new(1, "2026-001", "Juan Dela Cruz", isEligible: true) };
+        var equipment = new List<Equipment> { new(100, "EQ-100", "Multimeter", isAvailable: true) };
         var (borrowService, returnService) = CreateServices(students, equipment);
 
         await borrowService.ExecuteAsync(studentId: 1, equipmentId: 100, expectedReturnDate: DateTime.UtcNow.AddDays(7));

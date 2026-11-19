@@ -4,6 +4,9 @@ namespace EquipmentBorrowing.Application.Interfaces;
 
 public interface IEquipmentRepository
 {
+    Task<List<Equipment>> GetAllAsync(CancellationToken cancellationToken = default);
     Task<Equipment?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task<Equipment?> GetByIdentifierAsync(string identifier, CancellationToken cancellationToken = default);
+    Task AddAsync(Equipment equipment, CancellationToken cancellationToken = default);
     Task UpdateAsync(Equipment equipment, CancellationToken cancellationToken = default);
 }

@@ -5,15 +5,15 @@ using EquipmentBorrowing.Infrastructure.Repositories;
 
 
 var students = new List<Student>
-    {
-    new(id: 1, name: "Juan Dela Cruz", isAllowedToBorrow: true, maxActiveBorrowings: 2),
-    new(id: 2, name: "Maria Santos", isAllowedToBorrow: false, maxActiveBorrowings: 2),
-    };
+{
+    new(id: 1, studentNumber: "2026-001", name: "Juan Dela Cruz", isEligible: true),
+    new(id: 2, studentNumber: "2026-002", name: "Maria Santos", isEligible: false),
+};
 
 var equipment = new List<Equipment>
 {
-    new(id: 100, name: "Digital Multimeter", isAvailable: true),
-    new(id: 101, name: "Oscilloscope", isAvailable: false),
+    new(id: 100, identifier: "EQ-100", name: "Digital Multimeter", isAvailable: true),
+    new(id: 101, identifier: "EQ-101", name: "Oscilloscope", isAvailable: false),
 };
 
 IStudentRepository studentRepository = new InMemoryStudentRepository(students);
