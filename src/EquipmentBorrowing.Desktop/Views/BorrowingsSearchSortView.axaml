@@ -1,0 +1,126 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:EquipmentBorrowing.Desktop.ViewModels"
+             xmlns:dto="using:EquipmentBorrowing.Application.DTOs"
+             x:Class="EquipmentBorrowing.Desktop.Views.BorrowingsSearchSortView"
+             x:DataType="vm:BorrowingsSearchSortViewModel">
+
+    <Grid RowDefinitions="Auto,Auto,*" Margin="24" RowSpacing="16">
+        <!-- Page Title -->
+        <StackPanel Grid.Row="0" Spacing="4">
+            <TextBlock Text="Search, Filter &amp; Sort Borrowings (UC-09)" FontSize="24" FontWeight="Bold" Foreground="#1E293B" />
+            <TextBlock Text="Query borrowing records by partial text match, status, and custom date ordering with instant reset (BR-17)." Foreground="#64748B" />
+        </StackPanel>
+
+        <!-- Query Criteria Toolbar -->
+        <Border Grid.Row="1" Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="14">
+            <StackPanel Spacing="12">
+                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
+                    <TextBox Grid.Column="0" 
+                             Text="{Binding SearchText}" 
+                             PlaceholderText="Search by student name, student ID, or equipment..."
+                             VerticalAlignment="Center"/>
+                    <Button Grid.Column="1" 
+                            Content="Search" 
+                            Command="{Binding SearchCommand}" 
+                            Background="#2563EB" 
+                            Foreground="White" 
+                            FontWeight="SemiBold" 
+                            Padding="16,8" 
+                            CornerRadius="6"/>
+                    <Button Grid.Column="2" 
+                            Content="Clear Filter" 
+                            Command="{Binding ClearCriteriaCommand}" 
+                            Background="#F1F5F9" 
+                            Foreground="#475569" 
+                            FontWeight="Medium" 
+                            Padding="12,8" 
+                            CornerRadius="6"/>
+                </Grid>
+
+                <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto" ColumnSpacing="16" VerticalAlignment="Center">
+                    <!-- Status Filter -->
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                        <TextBlock Text="Status:" VerticalAlignment="Center" FontSize="12" FontWeight="SemiBold" Foreground="#64748B"/>
+                        <ComboBox ItemsSource="{Binding StatusFilters}" SelectedItem="{Binding SelectedStatusFilter}" Width="120"/>
+                    </StackPanel>
+
+                    <!-- Sort Field -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                        <TextBlock Text="Sort By:" VerticalAlignment="Center" FontSize="12" FontWeight="SemiBold" Foreground="#64748B"/>
+                        <ComboBox ItemsSource="{Binding SortFields}" SelectedItem="{Binding SelectedSortField}" Width="160"/>
+                    </StackPanel>
+
+                    <!-- Sort Direction CheckBox -->
+                    <CheckBox Grid.Column="2" 
+                              Content="Ascending" 
+                              IsChecked="{Binding SortAscending}" 
+                              VerticalAlignment="Center" 
+                              FontSize="12" 
+                              Foreground="#475569"/>
+
+                    <!-- Results Count Badge -->
+                    <Border Grid.Column="4" Background="#EEF2F6" CornerRadius="12" Padding="10,4" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding ResultsCountMessage}" FontSize="12" FontWeight="SemiBold" Foreground="#2563EB"/>
+                    </Border>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- Results Area -->
+        <Border Grid.Row="2" Background="#F8FAFC" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="8" Padding="14">
+            <Grid RowDefinitions="Auto,*">
+                <ProgressBar Grid.Row="0" IsIndeterminate="True" IsVisible="{Binding IsLoading}" Height="4" Margin="0,0,0,8"/>
+
+                <!-- Explicit Empty State (BR-17) -->
+                <Border Grid.Row="1" IsVisible="{Binding HasNoResults}" Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="6" Padding="32" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+                    <StackPanel HorizontalAlignment="Center" Spacing="6">
+                        <TextBlock Text="No Matching Borrowings Found" FontSize="16" FontWeight="SemiBold" Foreground="#64748B" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Try adjusting your search keywords, status filter, or clicking 'Clear Filter' to see all records." FontSize="12" Foreground="#94A3B8" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Results List -->
+                <ListBox Grid.Row="1" ItemsSource="{Binding Results}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="dto:BorrowingRecordDto">
+                            <Border Padding="14,12" Margin="0,4" CornerRadius="6" Background="White" BorderBrush="#E2E8F0" BorderThickness="1">
+                                <Grid ColumnDefinitions="2*,2*,2*,Auto" ColumnSpacing="12">
+
+                                    <!-- Student Information -->
+                                    <StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="2">
+                                        <TextBlock Text="STUDENT" FontSize="10" FontWeight="Bold" Foreground="#94A3B8"/>
+                                        <TextBlock Text="{Binding StudentName}" FontSize="14" FontWeight="SemiBold" Foreground="#0F172A"/>
+                                        <TextBlock Text="{Binding StudentNumber, StringFormat='ID: {0}'}" FontSize="11" Foreground="#64748B"/>
+                                    </StackPanel>
+
+                                    <!-- Equipment Information -->
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                                        <TextBlock Text="EQUIPMENT" FontSize="10" FontWeight="Bold" Foreground="#94A3B8"/>
+                                        <TextBlock Text="{Binding EquipmentName}" FontSize="14" FontWeight="SemiBold" Foreground="#0F172A"/>
+                                        <TextBlock Text="{Binding EquipmentIdentifier, StringFormat='Tag: {0}'}" FontSize="11" Foreground="#64748B"/>
+                                    </StackPanel>
+
+                                    <!-- Dates -->
+                                    <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="2">
+                                        <TextBlock Text="{Binding DateBorrowed, StringFormat='Issued: {0:MMM dd, yyyy}'}" FontSize="12" Foreground="#475569"/>
+                                        <TextBlock Text="{Binding ExpectedReturnDate, StringFormat='Due: {0:MMM dd, yyyy}'}" FontSize="12" Foreground="#64748B"/>
+                                        <TextBlock Text="{Binding ActualReturnDate, StringFormat='Returned: {0:MMM dd, yyyy}', FallbackValue=''}" FontSize="11" Foreground="#16A34A"/>
+                                    </StackPanel>
+
+                                    <!-- Status Badge -->
+                                    <Border Grid.Column="3" CornerRadius="4" Padding="10,6" VerticalAlignment="Center" Background="#EEF2F6">
+                                        <TextBlock Text="{Binding Status}" FontSize="12" FontWeight="Bold" Foreground="#2563EB"/>
+                                    </Border>
+
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </Grid>
+        </Border>
+
+    </Grid>
+
+</UserControl>

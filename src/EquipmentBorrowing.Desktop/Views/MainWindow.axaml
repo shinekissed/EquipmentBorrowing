@@ -59,6 +59,14 @@
                             Classes="navBtn"
                             Command="{Binding ShowStudentsCommand}" />
 
+					<Button Content="Borrowing History"
+                            Classes="navBtn"
+                            Command="{Binding ShowHistoryCommand}" />
+
+					<Button Content="Search &amp; Filter"
+                            Classes="navBtn"
+                            Command="{Binding ShowSearchSortCommand}" />
+
 					<Separator Background="#E2E8F0" Margin="0,16"/>
 
 					<TextBlock Text="SYSTEM INFO" Classes="sectionTitle" Margin="6,0,0,8"/>

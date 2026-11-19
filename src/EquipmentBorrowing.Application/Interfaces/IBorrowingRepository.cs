@@ -1,4 +1,5 @@
-﻿using EquipmentBorrowing.Domain;
+﻿using EquipmentBorrowing.Application.DTOs;
+using EquipmentBorrowing.Domain;
 
 namespace EquipmentBorrowing.Application.Interfaces;
 
@@ -13,4 +14,14 @@ public interface IBorrowingRepository
         IEnumerable<Equipment> updatedEquipment,
         bool simulateTransactionFailure = false,
         CancellationToken cancellationToken = default);
+
+    Task<List<BorrowingRecordDto>> GetHistoryByStudentIdAsync(int studentId, CancellationToken cancellationToken = default);
+    Task<List<BorrowingRecordDto>> GetHistoryByEquipmentIdAsync(int equipmentId, CancellationToken cancellationToken = default);
+    Task<List<BorrowingRecordDto>> QueryBorrowingsAsync(
+        string? searchText,
+        BorrowingStatusFilter statusFilter,
+        BorrowingSortField sortField,
+        bool sortAscending,
+        CancellationToken cancellationToken = default);
+    Task<List<BorrowingRecordDto>> GetActiveBorrowingsAsync(CancellationToken cancellationToken = default);
 }
