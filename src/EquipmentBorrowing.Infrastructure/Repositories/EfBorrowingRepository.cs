@@ -40,4 +40,41 @@ public class EfBorrowingRepository : IBorrowingRepository
         _context.Borrowings.Update(borrowing);
         await _context.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task CheckoutBatchAsync(
+        IEnumerable<Borrowing> borrowings,
+        IEnumerable<Equipment> updatedEquipment,
+        bool simulateTransactionFailure = false,
+        CancellationToken cancellationToken = default)
+    {
+        var strategy = _context.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(async () =>
+        {
+            await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+            try
+            {
+                foreach (var equipment in updatedEquipment)
+                {
+                    _context.Equipment.Update(equipment);
+                }
+
+                await _context.SaveChangesAsync(cancellationToken);
+
+                if (simulateTransactionFailure)
+                {
+                    throw new InvalidOperationException("Simulated transaction failure after write for A06 demonstration.");
+                }
+
+                await _context.Borrowings.AddRangeAsync(borrowings, cancellationToken);
+                await _context.SaveChangesAsync(cancellationToken);
+
+                await transaction.CommitAsync(cancellationToken);
+            }
+            catch
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                throw;
+            }
+        });
+    }
 }

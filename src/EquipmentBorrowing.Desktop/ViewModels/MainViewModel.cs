@@ -11,8 +11,13 @@ public partial class MainViewModel : ViewModelBase
     public EquipmentViewModel EquipmentVm { get; }
     public BorrowingsViewModel BorrowingsVm { get; }
     public StudentManagementViewModel StudentVm { get; }
+    public MultiItemBorrowViewModel MultiBorrowVm { get; }
 
-    public MainViewModel() : this(new EquipmentViewModel(), new BorrowingsViewModel(), new StudentManagementViewModel())
+    public MainViewModel() : this(
+        new EquipmentViewModel(),
+        new BorrowingsViewModel(),
+        new StudentManagementViewModel(),
+        new MultiItemBorrowViewModel())
     {
     }
 
@@ -20,15 +25,22 @@ public partial class MainViewModel : ViewModelBase
     public MainViewModel(
         EquipmentViewModel equipmentVm,
         BorrowingsViewModel borrowingsVm,
-        StudentManagementViewModel studentVm)
+        StudentManagementViewModel studentVm,
+        MultiItemBorrowViewModel multiBorrowVm)
     {
         EquipmentVm = equipmentVm;
         BorrowingsVm = borrowingsVm;
         StudentVm = studentVm;
+        MultiBorrowVm = multiBorrowVm;
 
         // Auto-refresh cross-view state when an action happens
         EquipmentVm.OnBorrowSucceeded = () => BorrowingsVm.Refresh();
         BorrowingsVm.OnReturnSucceeded = () => EquipmentVm.Refresh();
+        MultiBorrowVm.OnMultiBorrowSucceeded = () =>
+        {
+            EquipmentVm.Refresh();
+            BorrowingsVm.Refresh();
+        };
 
         _currentView = EquipmentVm;
     }
@@ -52,5 +64,12 @@ public partial class MainViewModel : ViewModelBase
     {
         StudentVm.LoadStudentsCommand.Execute(null);
         CurrentView = StudentVm;
+    }
+
+    [RelayCommand]
+    private void ShowMultiBorrow()
+    {
+        MultiBorrowVm.LoadDataCommand.Execute(null);
+        CurrentView = MultiBorrowVm;
     }
 }

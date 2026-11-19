@@ -68,6 +68,7 @@ public partial class App : Avalonia.Application
         services.AddTransient<EquipmentViewModel>();
         services.AddTransient<BorrowingsViewModel>();
         services.AddTransient<StudentManagementViewModel>();
+        services.AddTransient<MultiItemBorrowViewModel>();
         services.AddSingleton<MainViewModel>();
     }
 }

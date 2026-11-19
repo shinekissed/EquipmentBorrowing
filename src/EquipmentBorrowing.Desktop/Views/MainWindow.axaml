@@ -51,6 +51,10 @@
                             Classes="navBtn"
                             Command="{Binding ShowBorrowingsCommand}" />
 
+					<Button Content="Multi-Item Checkout"
+                            Classes="navBtn"
+                            Command="{Binding ShowMultiBorrowCommand}" />
+
 					<Button Content="Manage Students"
                             Classes="navBtn"
                             Command="{Binding ShowStudentsCommand}" />

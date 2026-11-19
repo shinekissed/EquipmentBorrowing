@@ -34,4 +34,27 @@ public class InMemoryBorrowingRepository : IBorrowingRepository
         _borrowings[borrowing.Id] = borrowing;
         return Task.CompletedTask;
     }
+
+    public Task CheckoutBatchAsync(
+        IEnumerable<Borrowing> borrowings,
+        IEnumerable<Equipment> updatedEquipment,
+        bool simulateTransactionFailure = false,
+        CancellationToken cancellationToken = default)
+    {
+        if (simulateTransactionFailure)
+        {
+            // Revert equipment availability to simulate atomic rollback
+            foreach (var eq in updatedEquipment)
+            {
+                eq.MarkAsReturned();
+            }
+            throw new InvalidOperationException("Simulated transaction failure after write for A06 demonstration.");
+        }
+
+        foreach (var b in borrowings)
+        {
+            _borrowings[b.Id] = b;
+        }
+        return Task.CompletedTask;
+    }
 }

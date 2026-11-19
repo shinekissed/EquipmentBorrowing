@@ -8,4 +8,9 @@ public interface IBorrowingRepository
     Task<int> CountActiveByStudentIdAsync(int studentId, CancellationToken cancellationToken = default);
     Task<Borrowing?> GetActiveByStudentAndEquipmentAsync(int studentId, int equipmentId, CancellationToken cancellationToken = default);
     Task UpdateAsync(Borrowing borrowing, CancellationToken cancellationToken = default);
+    Task CheckoutBatchAsync(
+        IEnumerable<Borrowing> borrowings,
+        IEnumerable<Equipment> updatedEquipment,
+        bool simulateTransactionFailure = false,
+        CancellationToken cancellationToken = default);
 }
