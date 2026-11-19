@@ -50,7 +50,8 @@ public partial class App : Avalonia.Application
     {
         // 1. Configure SQLite Database Connection
         services.AddDbContext<EquipmentBorrowingDbContext>(options =>
-            options.UseSqlite("Data Source=equipment_borrowing.db"), ServiceLifetime.Transient);
+            options.UseNpgsql(Environment.GetEnvironmentVariable("EQUIPMENT_BORROWING_DB_CONN")
+                ?? EquipmentBorrowingDbContext.DefaultConnectionString), ServiceLifetime.Transient);
 
         // 2. Register Database-Backed Repositories (Part J)
         services.AddTransient<IStudentRepository, EfStudentRepository>();

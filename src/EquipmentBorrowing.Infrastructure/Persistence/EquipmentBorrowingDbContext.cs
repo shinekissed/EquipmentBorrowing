@@ -5,20 +5,16 @@ namespace EquipmentBorrowing.Infrastructure.Persistence;
 
 public class EquipmentBorrowingDbContext : DbContext
 {
+    public const string DefaultConnectionString = "Host=localhost;Port=5432;Database=equipment_borrowing;Username=postgres;Password=postgres;";
+
     public DbSet<Student> Students => Set<Student>();
     public DbSet<Equipment> Equipment => Set<Equipment>();
     public DbSet<Borrowing> Borrowings => Set<Borrowing>();
 
-    // 1. Parameterless constructor for EF Core design-time migrations
-    public EquipmentBorrowingDbContext()
-    {
-    }
+    public EquipmentBorrowingDbContext() { }
 
-    // 2. Constructor for Dependency Injection at runtime
     public EquipmentBorrowingDbContext(DbContextOptions<EquipmentBorrowingDbContext> options)
-        : base(options)
-    {
-    }
+        : base(options) { }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -30,7 +26,8 @@ public class EquipmentBorrowingDbContext : DbContext
     {
         if (!optionsBuilder.IsConfigured)
         {
-            optionsBuilder.UseSqlite("Data Source=equipment_borrowing.db");
+            var connStr = Environment.GetEnvironmentVariable("EQUIPMENT_BORROWING_DB_CONN") ?? DefaultConnectionString;
+            optionsBuilder.UseNpgsql(connStr);
         }
     }
 }
