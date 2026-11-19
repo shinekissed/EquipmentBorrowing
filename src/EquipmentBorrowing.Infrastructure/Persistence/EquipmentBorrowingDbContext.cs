@@ -1,4 +1,4 @@
-﻿using EquipmentBorrowing.Domain;
+using EquipmentBorrowing.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace EquipmentBorrowing.Infrastructure.Persistence;

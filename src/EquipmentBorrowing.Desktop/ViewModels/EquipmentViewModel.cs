@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,7 +13,8 @@ namespace EquipmentBorrowing.Desktop.ViewModels;
 
 public partial class EquipmentViewModel : ViewModelBase
 {
-    private readonly BorrowEquipmentService _borrowService;
+    private readonly BorrowEquipmentService? _borrowService;
+    private readonly EquipmentService? _equipmentService;
 
     public ObservableCollection<Equipment> EquipmentList { get; } = new();
     public ObservableCollection<Student> Students { get; } = new();
@@ -27,6 +28,27 @@ public partial class EquipmentViewModel : ViewModelBase
     [ObservableProperty]
     private DateTime? _expectedReturnDate = DateTime.Today.AddDays(7);
 
+    // Register Form Fields (UC-15)
+    [ObservableProperty]
+    private string _newIdentifier = string.Empty;
+
+    [ObservableProperty]
+    private string _newName = string.Empty;
+
+    [ObservableProperty]
+    private string _newDescription = string.Empty;
+
+    // Edit Form Fields (UC-16)
+    [ObservableProperty]
+    private string _editIdentifier = string.Empty;
+
+    [ObservableProperty]
+    private string _editName = string.Empty;
+
+    [ObservableProperty]
+    private string _editDescription = string.Empty;
+
+    // Feedback Banner
     [ObservableProperty]
     private string? _feedbackMessage;
 
@@ -39,15 +61,32 @@ public partial class EquipmentViewModel : ViewModelBase
     public Action? OnBorrowSucceeded { get; set; }
 
     // Fallback constructor
-    public EquipmentViewModel() : this(null!)
+    public EquipmentViewModel() : this(null!, null!)
     {
     }
 
     // DI Constructor
-    public EquipmentViewModel(BorrowEquipmentService borrowService)
+    public EquipmentViewModel(BorrowEquipmentService? borrowService, EquipmentService? equipmentService = null)
     {
         _borrowService = borrowService;
+        _equipmentService = equipmentService;
         Refresh();
+    }
+
+    partial void OnSelectedEquipmentChanged(Equipment? value)
+    {
+        if (value is not null)
+        {
+            EditIdentifier = value.Identifier;
+            EditName = value.Name;
+            EditDescription = value.Description ?? string.Empty;
+        }
+        else
+        {
+            EditIdentifier = string.Empty;
+            EditName = string.Empty;
+            EditDescription = string.Empty;
+        }
     }
 
     public void Refresh()
@@ -57,15 +96,13 @@ public partial class EquipmentViewModel : ViewModelBase
 
         using var db = new EquipmentBorrowingDbContext();
 
-        // LINQ Query 1 (Part M): Retrieve equipment from SQLite without tracking
-        var equipmentFromDb = db.Equipment.AsNoTracking().ToList();
+        var equipmentFromDb = db.Equipment.AsNoTracking().OrderBy(e => e.Name).ToList();
         foreach (var item in equipmentFromDb)
         {
             EquipmentList.Add(item);
         }
 
-        // Query students from SQLite
-        var studentsFromDb = db.Students.AsNoTracking().ToList();
+        var studentsFromDb = db.Students.AsNoTracking().OrderBy(s => s.Name).ToList();
         foreach (var s in studentsFromDb)
         {
             Students.Add(s);
@@ -81,6 +118,8 @@ public partial class EquipmentViewModel : ViewModelBase
     [RelayCommand]
     private async Task BorrowEquipmentAsync()
     {
+        if (_borrowService is null) return;
+
         if (SelectedEquipment is null)
         {
             ShowFeedback("Please select an equipment item from the list.", false);
@@ -113,6 +152,60 @@ public partial class EquipmentViewModel : ViewModelBase
         else
         {
             ShowFeedback($"FAILED: {result.ErrorMessage}", false);
+        }
+    }
+
+    [RelayCommand]
+    public async Task RegisterEquipmentAsync()
+    {
+        if (_equipmentService is null) return;
+
+        var result = await _equipmentService.RegisterEquipmentAsync(
+            NewIdentifier,
+            NewName,
+            string.IsNullOrWhiteSpace(NewDescription) ? null : NewDescription);
+
+        if (result.Success)
+        {
+            ShowFeedback(result.Message, true);
+            NewIdentifier = string.Empty;
+            NewName = string.Empty;
+            NewDescription = string.Empty;
+            Refresh();
+        }
+        else
+        {
+            ShowFeedback(result.Message, false);
+        }
+    }
+
+    [RelayCommand]
+    public async Task UpdateEquipmentAsync()
+    {
+        if (_equipmentService is null) return;
+
+        if (SelectedEquipment is null)
+        {
+            ShowFeedback("Please select an equipment item from the list first.", false);
+            return;
+        }
+
+        var result = await _equipmentService.UpdateEquipmentAsync(
+            SelectedEquipment.Id,
+            EditIdentifier,
+            EditName,
+            string.IsNullOrWhiteSpace(EditDescription) ? null : EditDescription);
+
+        if (result.Success)
+        {
+            ShowFeedback(result.Message, true);
+            var currentId = SelectedEquipment.Id;
+            Refresh();
+            SelectedEquipment = EquipmentList.FirstOrDefault(e => e.Id == currentId);
+        }
+        else
+        {
+            ShowFeedback(result.Message, false);
         }
     }
 

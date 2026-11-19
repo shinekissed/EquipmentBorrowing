@@ -10,16 +10,21 @@ public partial class MainViewModel : ViewModelBase
 
     public EquipmentViewModel EquipmentVm { get; }
     public BorrowingsViewModel BorrowingsVm { get; }
+    public StudentManagementViewModel StudentVm { get; }
 
-    public MainViewModel() : this(new EquipmentViewModel(), new BorrowingsViewModel())
+    public MainViewModel() : this(new EquipmentViewModel(), new BorrowingsViewModel(), new StudentManagementViewModel())
     {
     }
 
     // Constructor Injection (Part H)
-    public MainViewModel(EquipmentViewModel equipmentVm, BorrowingsViewModel borrowingsVm)
+    public MainViewModel(
+        EquipmentViewModel equipmentVm,
+        BorrowingsViewModel borrowingsVm,
+        StudentManagementViewModel studentVm)
     {
         EquipmentVm = equipmentVm;
         BorrowingsVm = borrowingsVm;
+        StudentVm = studentVm;
 
         // Auto-refresh cross-view state when an action happens
         EquipmentVm.OnBorrowSucceeded = () => BorrowingsVm.Refresh();
@@ -40,5 +45,12 @@ public partial class MainViewModel : ViewModelBase
     {
         BorrowingsVm.Refresh();
         CurrentView = BorrowingsVm;
+    }
+
+    [RelayCommand]
+    private void ShowStudents()
+    {
+        StudentVm.LoadStudentsCommand.Execute(null);
+        CurrentView = StudentVm;
     }
 }

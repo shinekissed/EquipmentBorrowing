@@ -24,8 +24,8 @@ public class BorrowEquipmentServiceTests
     public async Task ExecuteAsync_ValidRequest_ReturnsSuccessAndCreatesBorrowing()
     {
         // Arrange
-        var students = new List<Student> { new(1, "Juan Dela Cruz", isAllowedToBorrow: true, maxActiveBorrowings: 2) };
-        var equipment = new List<Equipment> { new(100, "Multimeter", isAvailable: true) };
+        var students = new List<Student> { new(1, "2026-001", "Juan Dela Cruz", isEligible: true) };
+        var equipment = new List<Equipment> { new(100, "EQ-100", "Multimeter", isAvailable: true) };
         var (service, _) = CreateService(students, equipment);
 
         // Act
@@ -40,7 +40,7 @@ public class BorrowEquipmentServiceTests
     public async Task ExecuteAsync_StudentDoesNotExist_ReturnsFailure()
     {
         var students = new List<Student>();
-        var equipment = new List<Equipment> { new(100, "Multimeter", isAvailable: true) };
+        var equipment = new List<Equipment> { new(100, "EQ-100", "Multimeter", isAvailable: true) };
         var (service, _) = CreateService(students, equipment);
 
         var result = await service.ExecuteAsync(studentId: 999, equipmentId: 100, expectedReturnDate: DateTime.UtcNow.AddDays(7));
@@ -52,8 +52,8 @@ public class BorrowEquipmentServiceTests
     [Fact]
     public async Task ExecuteAsync_StudentNotAllowedToBorrow_ReturnsFailure()
     {
-        var students = new List<Student> { new(1, "Maria Santos", isAllowedToBorrow: false, maxActiveBorrowings: 2) };
-        var equipment = new List<Equipment> { new(100, "Multimeter", isAvailable: true) };
+        var students = new List<Student> { new(1, "2026-002", "Maria Santos", isEligible: false) };
+        var equipment = new List<Equipment> { new(100, "EQ-100", "Multimeter", isAvailable: true) };
         var (service, _) = CreateService(students, equipment);
 
         var result = await service.ExecuteAsync(studentId: 1, equipmentId: 100, expectedReturnDate: DateTime.UtcNow.AddDays(7));
@@ -65,7 +65,7 @@ public class BorrowEquipmentServiceTests
     [Fact]
     public async Task ExecuteAsync_EquipmentDoesNotExist_ReturnsFailure()
     {
-        var students = new List<Student> { new(1, "Juan Dela Cruz", isAllowedToBorrow: true, maxActiveBorrowings: 2) };
+        var students = new List<Student> { new(1, "2026-001", "Juan Dela Cruz", isEligible: true) };
         var equipment = new List<Equipment>();
         var (service, _) = CreateService(students, equipment);
 
@@ -78,8 +78,8 @@ public class BorrowEquipmentServiceTests
     [Fact]
     public async Task ExecuteAsync_EquipmentUnavailable_ReturnsFailure()
     {
-        var students = new List<Student> { new(1, "Juan Dela Cruz", isAllowedToBorrow: true, maxActiveBorrowings: 2) };
-        var equipment = new List<Equipment> { new(100, "Multimeter", isAvailable: false) };
+        var students = new List<Student> { new(1, "2026-001", "Juan Dela Cruz", isEligible: true) };
+        var equipment = new List<Equipment> { new(100, "EQ-100", "Multimeter", isAvailable: false) };
         var (service, _) = CreateService(students, equipment);
 
         var result = await service.ExecuteAsync(studentId: 1, equipmentId: 100, expectedReturnDate: DateTime.UtcNow.AddDays(7));
@@ -91,23 +91,27 @@ public class BorrowEquipmentServiceTests
     [Fact]
     public async Task ExecuteAsync_StudentAtMaxActiveBorrowings_ReturnsFailure()
     {
-        // Student allows only 1 active borrowing.
-        var students = new List<Student> { new(1, "Juan Dela Cruz", isAllowedToBorrow: true, maxActiveBorrowings: 1) };
+        // Student.MaxActiveBorrowings is fixed at 3, so borrow 3 items, then try a 4th.
+        var students = new List<Student> { new(1, "2026-001", "Juan Dela Cruz", isEligible: true) };
         var equipment = new List<Equipment>
         {
-            new(100, "Multimeter", isAvailable: true),
-            new(101, "Oscilloscope", isAvailable: true),
+            new(100, "EQ-100", "Multimeter", isAvailable: true),
+            new(101, "EQ-101", "Oscilloscope", isAvailable: true),
+            new(102, "EQ-102", "Soldering Iron", isAvailable: true),
+            new(103, "EQ-103", "Breadboard", isAvailable: true),
         };
         var (service, _) = CreateService(students, equipment);
 
-        // First borrow succeeds and uses up the limit.
-        var first = await service.ExecuteAsync(studentId: 1, equipmentId: 100, expectedReturnDate: DateTime.UtcNow.AddDays(7));
-        Assert.True(first.Success);
+        for (var id = 100; id <= 102; id++)
+        {
+            var ok = await service.ExecuteAsync(studentId: 1, equipmentId: id, expectedReturnDate: DateTime.UtcNow.AddDays(7));
+            Assert.True(ok.Success);
+        }
 
-        // Second borrow should fail — student already has 1 active borrowing (their max).
-        var second = await service.ExecuteAsync(studentId: 1, equipmentId: 101, expectedReturnDate: DateTime.UtcNow.AddDays(7));
+        // The 4th borrow should fail because the student is at their maximum.
+        var fourth = await service.ExecuteAsync(studentId: 1, equipmentId: 103, expectedReturnDate: DateTime.UtcNow.AddDays(7));
 
-        Assert.False(second.Success);
-        Assert.Contains("maximum", second.ErrorMessage);
+        Assert.False(fourth.Success);
+        Assert.Contains("maximum", fourth.ErrorMessage);
     }
 }

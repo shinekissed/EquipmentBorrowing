@@ -28,7 +28,7 @@ public partial class App : Avalonia.Application
         ConfigureServices(serviceCollection);
         Services = serviceCollection.BuildServiceProvider();
 
-        // Automatically ensure SQLite database & tables exist on startup
+        // Automatically ensure the database & tables exist on startup
         using (var scope = Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<EquipmentBorrowingDbContext>();
@@ -48,7 +48,7 @@ public partial class App : Avalonia.Application
 
     private static void ConfigureServices(IServiceCollection services)
     {
-        // 1. Configure SQLite Database Connection
+        // 1. Configure PostgreSQL Database Connection
         services.AddDbContext<EquipmentBorrowingDbContext>(options =>
             options.UseNpgsql(Environment.GetEnvironmentVariable("EQUIPMENT_BORROWING_DB_CONN")
                 ?? EquipmentBorrowingDbContext.DefaultConnectionString), ServiceLifetime.Transient);
@@ -61,10 +61,13 @@ public partial class App : Avalonia.Application
         // 3. Register Application Services
         services.AddTransient<BorrowEquipmentService>();
         services.AddTransient<ReturnEquipmentService>();
+        services.AddTransient<StudentService>();
+        services.AddTransient<EquipmentService>();
 
         // 4. Register ViewModels
         services.AddTransient<EquipmentViewModel>();
         services.AddTransient<BorrowingsViewModel>();
+        services.AddTransient<StudentManagementViewModel>();
         services.AddSingleton<MainViewModel>();
     }
 }
