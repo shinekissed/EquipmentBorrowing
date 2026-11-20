@@ -1,0 +1,188 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:EquipmentBorrowing.Desktop.ViewModels"
+             xmlns:domain="using:EquipmentBorrowing.Domain"
+             xmlns:dto="using:EquipmentBorrowing.Application.DTOs"
+             x:Class="EquipmentBorrowing.Desktop.Views.BorrowingHistoryView"
+             x:DataType="vm:BorrowingHistoryViewModel">
+
+    <Grid RowDefinitions="Auto,*" Margin="24" RowSpacing="16">
+        <!-- Page Title -->
+        <StackPanel Grid.Row="0" Spacing="4">
+            <TextBlock Text="Borrowing History (UC-07 &amp; UC-08)" FontSize="24" FontWeight="Bold" Foreground="#1E293B" />
+            <TextBlock Text="Inspect comprehensive active and historical borrowing timelines with master-detail navigation and asynchronous loading." Foreground="#64748B" />
+        </StackPanel>
+
+        <!-- Main Content Area -->
+        <TabControl Grid.Row="1">
+
+            <!-- Tab 1: Student Borrowing History (UC-07) -->
+            <TabItem Header="Student History (UC-07)">
+                <Grid ColumnDefinitions="3*,5*" ColumnSpacing="16" Margin="0,12,0,0">
+
+                    <!-- Master: Student List -->
+                    <Border Grid.Column="0" Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="14">
+                        <Grid RowDefinitions="Auto,*">
+                            <TextBlock Grid.Row="0" Text="SELECT STUDENT (MASTER)" FontSize="11" FontWeight="Bold" Foreground="#64748B" Margin="4,0,0,10"/>
+                            <ListBox Grid.Row="1" ItemsSource="{Binding Students}" SelectedItem="{Binding SelectedStudent}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate x:DataType="domain:Student">
+                                        <Border Padding="10,8" Margin="0,2" CornerRadius="6" Background="#F8FAFC">
+                                            <Grid ColumnDefinitions="Auto,*">
+                                                <Border Grid.Column="0" Background="#E2E8F0" CornerRadius="4" Padding="6,2" Margin="0,0,10,0" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding StudentNumber}" FontSize="11" FontWeight="SemiBold" Foreground="#475569"/>
+                                                </Border>
+                                                <TextBlock Grid.Column="1" Text="{Binding Name}" FontWeight="Medium" FontSize="13" VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Grid>
+                    </Border>
+
+                    <!-- Detail: Borrowing History Records -->
+                    <Border Grid.Column="1" Background="#F8FAFC" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="8" Padding="18">
+                        <Grid RowDefinitions="Auto,Auto,*">
+                            <!-- Student Header Info -->
+                            <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,12">
+                                <TextBlock Text="STUDENT BORROWING TIMELINE" FontSize="11" FontWeight="Bold" Foreground="#64748B"/>
+                                <TextBlock Text="{Binding SelectedStudent.Name, FallbackValue='(Select a student)'}" FontSize="18" FontWeight="Bold" Foreground="#0F172A"/>
+                                <TextBlock Text="{Binding SelectedStudent.StudentNumber, StringFormat='Institutional ID: {0}', FallbackValue=''}" FontSize="12" Foreground="#64748B"/>
+                            </StackPanel>
+
+                            <!-- Loading Indicator -->
+                            <ProgressBar Grid.Row="1" IsIndeterminate="True" IsVisible="{Binding IsStudentHistoryLoading}" Height="4" Margin="0,0,0,10"/>
+
+                            <!-- Empty State -->
+                            <Border Grid.Row="2" IsVisible="{Binding HasNoStudentHistory}" Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="6" Padding="24" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+                                <StackPanel HorizontalAlignment="Center" Spacing="6">
+                                    <TextBlock Text="No Borrowing Records Found" FontSize="14" FontWeight="SemiBold" Foreground="#64748B" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="This student has not yet checked out any equipment items." FontSize="12" Foreground="#94A3B8" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- History Records List -->
+                            <ListBox Grid.Row="2" ItemsSource="{Binding StudentHistory}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate x:DataType="dto:BorrowingRecordDto">
+                                        <Border Padding="12,10" Margin="0,4" CornerRadius="6" Background="White" BorderBrush="#E2E8F0" BorderThickness="1">
+                                            <Grid ColumnDefinitions="Auto,*,Auto">
+                                                <!-- Equipment Info -->
+                                                <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,16,0" Spacing="2">
+                                                    <Border Background="#EEF2F6" CornerRadius="4" Padding="6,2" HorizontalAlignment="Left">
+                                                        <TextBlock Text="{Binding EquipmentIdentifier}" FontSize="11" FontWeight="Bold" Foreground="#2563EB"/>
+                                                    </Border>
+                                                    <TextBlock Text="{Binding EquipmentName}" FontSize="14" FontWeight="SemiBold"/>
+                                                </StackPanel>
+
+                                                <!-- Dates -->
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                                                    <TextBlock Text="{Binding DateBorrowed, StringFormat='Borrowed: {0:MMM dd, yyyy}'}" FontSize="12" Foreground="#475569"/>
+                                                    <TextBlock Text="{Binding ExpectedReturnDate, StringFormat='Due: {0:MMM dd, yyyy}'}" FontSize="12" Foreground="#64748B"/>
+                                                    <TextBlock Text="{Binding ActualReturnDate, StringFormat='Returned: {0:MMM dd, yyyy}', FallbackValue=''}" FontSize="11" Foreground="#16A34A"/>
+                                                </StackPanel>
+
+                                                <!-- Status Badge -->
+                                                <Border Grid.Column="2" CornerRadius="4" Padding="8,4" VerticalAlignment="Center" Background="#F1F5F9">
+                                                    <TextBlock Text="{Binding Status}" FontSize="11" FontWeight="Bold" Foreground="#334155"/>
+                                                </Border>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+
+                        </Grid>
+                    </Border>
+
+                </Grid>
+            </TabItem>
+
+            <!-- Tab 2: Equipment Borrowing History (UC-08) -->
+            <TabItem Header="Equipment History (UC-08)">
+                <Grid ColumnDefinitions="3*,5*" ColumnSpacing="16" Margin="0,12,0,0">
+
+                    <!-- Master: Equipment List -->
+                    <Border Grid.Column="0" Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="14">
+                        <Grid RowDefinitions="Auto,*">
+                            <TextBlock Grid.Row="0" Text="SELECT EQUIPMENT (MASTER)" FontSize="11" FontWeight="Bold" Foreground="#64748B" Margin="4,0,0,10"/>
+                            <ListBox Grid.Row="1" ItemsSource="{Binding EquipmentList}" SelectedItem="{Binding SelectedEquipment}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate x:DataType="domain:Equipment">
+                                        <Border Padding="10,8" Margin="0,2" CornerRadius="6" Background="#F8FAFC">
+                                            <Grid ColumnDefinitions="Auto,*">
+                                                <Border Grid.Column="0" Background="#E2E8F0" CornerRadius="4" Padding="6,2" Margin="0,0,10,0" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding Identifier}" FontSize="11" FontWeight="SemiBold" Foreground="#475569"/>
+                                                </Border>
+                                                <TextBlock Grid.Column="1" Text="{Binding Name}" FontWeight="Medium" FontSize="13" VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Grid>
+                    </Border>
+
+                    <!-- Detail: Borrowing History Records -->
+                    <Border Grid.Column="1" Background="#F8FAFC" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="8" Padding="18">
+                        <Grid RowDefinitions="Auto,Auto,*">
+                            <!-- Equipment Header Info -->
+                            <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,12">
+                                <TextBlock Text="EQUIPMENT CIRCULATION TIMELINE" FontSize="11" FontWeight="Bold" Foreground="#64748B"/>
+                                <TextBlock Text="{Binding SelectedEquipment.Name, FallbackValue='(Select equipment)'}" FontSize="18" FontWeight="Bold" Foreground="#0F172A"/>
+                                <TextBlock Text="{Binding SelectedEquipment.Identifier, StringFormat='Identifier: {0}', FallbackValue=''}" FontSize="12" Foreground="#64748B"/>
+                            </StackPanel>
+
+                            <!-- Loading Indicator -->
+                            <ProgressBar Grid.Row="1" IsIndeterminate="True" IsVisible="{Binding IsEquipmentHistoryLoading}" Height="4" Margin="0,0,0,10"/>
+
+                            <!-- Empty State -->
+                            <Border Grid.Row="2" IsVisible="{Binding HasNoEquipmentHistory}" Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="6" Padding="24" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+                                <StackPanel HorizontalAlignment="Center" Spacing="6">
+                                    <TextBlock Text="No Borrowing Records Found" FontSize="14" FontWeight="SemiBold" Foreground="#64748B" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="This physical item has not yet been issued to any student." FontSize="12" Foreground="#94A3B8" HorizontalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- History Records List -->
+                            <ListBox Grid.Row="2" ItemsSource="{Binding EquipmentHistory}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate x:DataType="dto:BorrowingRecordDto">
+                                        <Border Padding="12,10" Margin="0,4" CornerRadius="6" Background="White" BorderBrush="#E2E8F0" BorderThickness="1">
+                                            <Grid ColumnDefinitions="Auto,*,Auto">
+                                                <!-- Student Info -->
+                                                <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,16,0" Spacing="2">
+                                                    <Border Background="#EEF2F6" CornerRadius="4" Padding="6,2" HorizontalAlignment="Left">
+                                                        <TextBlock Text="{Binding StudentNumber}" FontSize="11" FontWeight="Bold" Foreground="#2563EB"/>
+                                                    </Border>
+                                                    <TextBlock Text="{Binding StudentName}" FontSize="14" FontWeight="SemiBold"/>
+                                                </StackPanel>
+
+                                                <!-- Dates -->
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                                                    <TextBlock Text="{Binding DateBorrowed, StringFormat='Borrowed: {0:MMM dd, yyyy}'}" FontSize="12" Foreground="#475569"/>
+                                                    <TextBlock Text="{Binding ExpectedReturnDate, StringFormat='Due: {0:MMM dd, yyyy}'}" FontSize="12" Foreground="#64748B"/>
+                                                    <TextBlock Text="{Binding ActualReturnDate, StringFormat='Returned: {0:MMM dd, yyyy}', FallbackValue=''}" FontSize="11" Foreground="#16A34A"/>
+                                                </StackPanel>
+
+                                                <!-- Status Badge -->
+                                                <Border Grid.Column="2" CornerRadius="4" Padding="8,4" VerticalAlignment="Center" Background="#F1F5F9">
+                                                    <TextBlock Text="{Binding Status}" FontSize="11" FontWeight="Bold" Foreground="#334155"/>
+                                                </Border>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+
+                        </Grid>
+                    </Border>
+
+                </Grid>
+            </TabItem>
+
+        </TabControl>
+    </Grid>
+
+</UserControl>

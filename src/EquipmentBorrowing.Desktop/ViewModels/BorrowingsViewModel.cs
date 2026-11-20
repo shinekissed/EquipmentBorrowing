@@ -52,26 +52,20 @@ public partial class BorrowingsViewModel : ViewModelBase
     {
         ActiveBorrowings.Clear();
 
-        using var db = new EquipmentBorrowingDbContext();
+        if (_borrowingRepository is null) return;
 
-        // LINQ Query 2 (Part M): Join active borrowings with Student and Equipment from SQLite
-        var activeList = (from b in db.Borrowings.AsNoTracking()
-                          join s in db.Students.AsNoTracking() on b.StudentId equals s.Id
-                          join e in db.Equipment.AsNoTracking() on b.EquipmentId equals e.Id
-                          where b.Status == BorrowingStatus.Active
-                          select new BorrowingItemDisplay(
-                              b.Id,
-                              s.Name,
-                              s.Id,
-                              e.Name,
-                              e.Id,
-                              b.DateBorrowed,
-                              b.ExpectedReturnDate
-                          )).ToList();
-
-        foreach (var item in activeList)
+        var activeDtos = _borrowingRepository.GetActiveBorrowingsAsync().GetAwaiter().GetResult();
+        foreach (var b in activeDtos)
         {
-            ActiveBorrowings.Add(item);
+            ActiveBorrowings.Add(new BorrowingItemDisplay(
+                b.Id,
+                b.StudentName,
+                b.StudentId,
+                b.EquipmentName,
+                b.EquipmentId,
+                b.DateBorrowed,
+                b.ExpectedReturnDate
+            ));
         }
 
         if (ActiveBorrowings.Count > 0)

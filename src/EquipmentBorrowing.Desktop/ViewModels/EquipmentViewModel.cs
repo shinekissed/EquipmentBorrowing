@@ -15,6 +15,7 @@ public partial class EquipmentViewModel : ViewModelBase
 {
     private readonly BorrowEquipmentService? _borrowService;
     private readonly EquipmentService? _equipmentService;
+    private readonly StudentService? _studentService;
 
     public ObservableCollection<Equipment> EquipmentList { get; } = new();
     public ObservableCollection<Student> Students { get; } = new();
@@ -61,15 +62,19 @@ public partial class EquipmentViewModel : ViewModelBase
     public Action? OnBorrowSucceeded { get; set; }
 
     // Fallback constructor
-    public EquipmentViewModel() : this(null!, null!)
+    public EquipmentViewModel() : this(null!, null!, null!)
     {
     }
 
     // DI Constructor
-    public EquipmentViewModel(BorrowEquipmentService? borrowService, EquipmentService? equipmentService = null)
+    public EquipmentViewModel(
+        BorrowEquipmentService? borrowService,
+        EquipmentService? equipmentService = null,
+        StudentService? studentService = null)
     {
         _borrowService = borrowService;
         _equipmentService = equipmentService;
+        _studentService = studentService;
         Refresh();
     }
 
@@ -94,18 +99,22 @@ public partial class EquipmentViewModel : ViewModelBase
         EquipmentList.Clear();
         Students.Clear();
 
-        using var db = new EquipmentBorrowingDbContext();
-
-        var equipmentFromDb = db.Equipment.AsNoTracking().OrderBy(e => e.Name).ToList();
-        foreach (var item in equipmentFromDb)
+        if (_equipmentService != null)
         {
-            EquipmentList.Add(item);
+            var equipmentFromDb = _equipmentService.GetAllEquipmentAsync().GetAwaiter().GetResult();
+            foreach (var item in equipmentFromDb.OrderBy(e => e.Name))
+            {
+                EquipmentList.Add(item);
+            }
         }
 
-        var studentsFromDb = db.Students.AsNoTracking().OrderBy(s => s.Name).ToList();
-        foreach (var s in studentsFromDb)
+        if (_studentService != null)
         {
-            Students.Add(s);
+            var studentsFromDb = _studentService.GetAllStudentsAsync().GetAwaiter().GetResult();
+            foreach (var s in studentsFromDb.OrderBy(s => s.Name))
+            {
+                Students.Add(s);
+            }
         }
 
         if (EquipmentList.Count > 0 && (SelectedEquipment is null || !EquipmentList.Any(e => e.Id == SelectedEquipment.Id)))
